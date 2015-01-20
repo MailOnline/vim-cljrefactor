@@ -1,0 +1,25 @@
+*cljrefactor.txt*  Clojure refactoring support
+
+Author:  Renzo Borgtti<http://reborg.net/>
+License: Same terms as Vim itself (see |license|)
+
+This plugin is only available if 'compatible' is not set.
+
+                                                *cljrefactor*
+This plugin requires the middleware
+provided by <https://github.com/clojure-emacs/cider-nrepl>.
+
+RENAMING SYMBOLS                                *rename-sym*
+
+Awesome doc here.
+
+                                                *more-awesome*
+More awesome
+
+ABOUT                                           *cljrefator-about*
+
+Grab the latest version or report a bug on GitHub:
+
+http://github.com/reborg/vim-cljrefactor
+
+ vim:tw=78:et:ft=help:norl:
