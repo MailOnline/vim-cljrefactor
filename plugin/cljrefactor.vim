@@ -32,3 +32,20 @@ augroup cljrefactor_refactoring
   autocmd!
   autocmd FileType clojure call s:set_up_refactoring()
 augroup END
+
+function <SID>FindUsages()
+    lgetex []
+    let word = expand('<cword>')
+    let symbol = fireplace#info(word)
+    let usages = fireplace#message({"op": "refactor", "refactor-fn": "find-symbol", "ns": symbol.ns, "name": symbol.name})
+    for usage in usages
+        if !has_key(usage, 'occurrence') || len(usage.occurrence) < 7
+            "echo "Not long enough: "
+            "echo usage
+            continue
+        endif
+        let msg = printf('%s:%d:%s', usage.occurrence[5], usage.occurrence[0], usage.occurrence[6])
+        laddex msg
+    endfor
+endfunction
+nmap <silent> cru :call <SID>FindUsages()<CR>
