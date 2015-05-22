@@ -1,51 +1,49 @@
 " cljrefactor.vim - Clojure Refactoring Support
-" Maintainer:   Renzo Borgatti <http://reborg.net/>
+" Maintainer:  Frazer Irving () 
 " Version:      0.1
 " GetLatestVimScripts: 9999 1 :AutoInstall: cljrefactor.vim
-
-if exists("g:loaded_cljrefactor") || v:version < 700 || &cp
-  finish
-endif
-let g:loaded_cljrefactor = 1
-
-" Section: File type
-
-augroup cljrefactor_file_type
-  autocmd!
-  autocmd BufNewFile,BufReadPost *.clj setfiletype clojure
-augroup END
-
-" Section: refactoring
-
-function! s:RefactorRename(bang, ...) abort
-  "echo "my funky fun: " . a:1 ." args."
-  let expr = fireplace#message({"op": "refactor", "refactor-fn": "find-symbol", "ns": "clojure.core", "name": "juxt"})
-  echo expr
-endfunction
-
-function! s:set_up_refactoring() abort
-  command! -buffer -bang -nargs=* RefactorRename
-        \ call s:RefactorRename(<bang>0, <f-args>)
-endfunction
-
-augroup cljrefactor_refactoring
-  autocmd!
-  autocmd FileType clojure call s:set_up_refactoring()
-augroup END
 
 function <SID>FindUsages()
     lgetex []
     let word = expand('<cword>')
     let symbol = fireplace#info(word)
-    let usages = fireplace#message({"op": "refactor", "refactor-fn": "find-symbol", "ns": symbol.ns, "name": symbol.name})
+    let usages = fireplace#message({"op": "find-symbol", "ns": symbol.ns, "name": symbol.name, "dir": ".", "line": symbol.line, "format": "none"})
     for usage in usages
-        if !has_key(usage, 'occurrence') || len(usage.occurrence) < 7
+        if !has_key(usage, 'occurrence')
             "echo "Not long enough: "
             "echo usage
             continue
+        else
+            let occ = usage.occurrence
+            let i = 0
+            let mymap = {}
+            for kv in occ
+                if i % 2
+                    let mymap[occ[i - 1]] = occ[i]
+                endif
+                let i = i + 1
+            endfor
+            let msg = printf('%s:%d:%s', mymap['file'], mymap['line-beg'], mymap['col-beg'])
+            laddex msg
         endif
-        let msg = printf('%s:%d:%s', usage.occurrence[5], usage.occurrence[0], usage.occurrence[6])
-        laddex msg
     endfor
 endfunction
+
+function <SID>ArtifactList()
+    let artifacts = fireplace#message({"op": "artifact-list"})
+    echo artifacts
+endfunction
+
+function <SID>CleanNs()
+    let filename = expand("%:p")
+    echo 'the file:' . filename
+    let cleaned = fireplace#message({"op": "clean-ns", "path": filename})
+    echo cleaned
+endfunction
+
+
+
 nmap <silent> cru :call <SID>FindUsages()<CR>
+nmap <silent> cral :call <SID>ArtifactList()<CR>
+nmap <silent> crc :call <SID>CleanNs()<CR>
+
