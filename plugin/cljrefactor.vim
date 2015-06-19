@@ -7,7 +7,7 @@ function <SID>FindUsages()
     lgetex []
     let word = expand('<cword>')
     let symbol = fireplace#info(word)
-    let usages = fireplace#message({"op": "find-symbol", "ns": symbol.ns, "name": symbol.name, "dir": ".", "line": symbol.line, "serialize-format": "bencode"})
+    let usages = fireplace#message({"op": "find-symbol", "ns": symbol.ns, "name": symbol.name, "dir": ".", "line": symbol.line, "serialization-format": "bencode"})
     for usage in usages
         if !has_key(usage, 'occurrence')
             "echo "Not long enough: "
