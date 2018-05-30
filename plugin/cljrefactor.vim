@@ -1,5 +1,5 @@
 " cljrefactor.vim - Clojure Refactoring Support
-" Maintainer:  Frazer Irving () 
+" Maintainer:  Frazer Irving ()
 " Version:      0.1
 " GetLatestVimScripts: 9999 1 :AutoInstall: cljrefactor.vim
 
@@ -9,7 +9,10 @@ function <SID>FindUsages()
     let symbol = fireplace#info(word)
     let usages = fireplace#message({"op": "find-symbol", "ns": symbol.ns, "name": symbol.name, "dir": ".", "line": symbol.line, "serialization-format": "bencode", "file": expand('%:p'), "column": col('.')})
     for usage in usages
-        if !has_key(usage, 'occurrence')
+        if has_key(usage, 'err')
+            echoerr usage.err
+            continue
+          elseif !has_key(usage, 'occurrence')
             "echo "Not long enough: "
             "echo usage
             continue
