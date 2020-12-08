@@ -4,41 +4,42 @@
 " GetLatestVimScripts: 9999 1 :AutoInstall: cljrefactor.vim
 
 function <SID>FindUsages()
-    lgetex []
-    let word = expand('<cword>')
-    let symbol = fireplace#info(word)
-    let usages = fireplace#message({"op": "find-symbol", "ns": symbol.ns, "name": symbol.name, "dir": ".", "line": symbol.line, "serialization-format": "bencode", "file": expand('%:p'), "column": col('.')})
-    for usage in usages
-        if has_key(usage, 'err')
-            echoerr usage.err
-            continue
-          elseif !has_key(usage, 'occurrence')
-            "echo "Not long enough: "
-            "echo usage
-            continue
-        else
-            let occ = usage.occurrence
-            let msg = printf('%s:%d:%s', occ['file'], occ['line-beg'], occ['col-beg'])
-            laddex msg
-        endif
-    endfor
-    lopen
+  cgetex []
+  let word = expand('<cword>')
+  let symbol = fireplace#info(word)
+  let usages = fireplace#message({"op": "find-symbol", "ns": symbol.ns, "name": symbol.name, "dir": ".", "line": symbol.line, "serialization-format": "bencode", "file": expand('%:p'), "column": col('.')}, v:t_list)
+  echo usages
+  for usage in usages
+    if has_key(usage, 'err')
+      echoerr usage.err
+      continue
+    elseif !has_key(usage, 'occurrence')
+      "echo "Not long enough: "
+      "echo usage
+      continue
+    else
+      let occ = usage.occurrence
+      let msg = printf('%s:%d:%s', occ['file'], occ['line-beg'], occ['col-beg'])
+      caddex msg
+    endif
+  endfor
+  copen
 endfunction
 
 function <SID>ExtractFunction()
-    lgetex []
-    let word = expand('<cword>')
-    let symbol = fireplace#info(word)
-    let unbound = fireplace#message({"op": "find-unbound", "file": @%, "line": line('.'), "column": virtcol('.'), "serialization-format": "bencode"})
-    echo unbound
+  lgetex []
+  let word = expand('<cword>')
+  let symbol = fireplace#info(word)
+  let unbound = fireplace#message({"op": "find-unbound", "file": @%, "line": line('.'), "column": virtcol('.'), "serialization-format": "bencode"})
+  echo unbound
 
-    let foo = <SID>GetCompleteContext()
-    echo foo
+  let foo = <SID>GetCompleteContext()
+  echo foo
 endfunction
 
 function <SID>ArtifactList()
-    let artifacts = fireplace#message({"op": "artifact-list"})
-    echo artifacts
+  let artifacts = fireplace#message({"op": "artifact-list"})
+  echo artifacts
 endfunction
 
 function! s:paste(text) abort
@@ -66,11 +67,11 @@ function! <SID>CleanNs()
   call setpos("']", [0, line2, col2, 0])
 
   if expand('<cword>') ==? 'ns'
-    let res = fireplace#message({'op': 'clean-ns', 'path': p})
+    let res = fireplace#message({ 'op': 'clean-ns', 'path': p, 'prefix-rewriting': 'false', 'ignore-paths':  '[#"lifecycle", #"dev"]' }, v:t_list)
     let new_ns = get(res[0], 'ns')
     if type(new_ns) == type("")
-        call s:paste(substitute(new_ns, '\n$', '', ''))
-        silent exe "normal! `[v`]=="
+      call s:paste(substitute(new_ns, '\n$', '', ''))
+      silent exe "normal! `[v`]=="
     endif
   endif
 endfunction
