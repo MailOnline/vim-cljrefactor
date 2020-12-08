@@ -8,7 +8,6 @@ function <SID>FindUsages()
   let word = expand('<cword>')
   let symbol = fireplace#info(word)
   let usages = fireplace#message({"op": "find-symbol", "ns": symbol.ns, "name": symbol.name, "dir": ".", "line": symbol.line, "serialization-format": "bencode", "file": expand('%:p'), "column": col('.')}, v:t_list)
-  echo usages
   for usage in usages
     if has_key(usage, 'err')
       echoerr usage.err
@@ -19,7 +18,8 @@ function <SID>FindUsages()
       continue
     else
       let occ = usage.occurrence
-      let msg = printf('%s:%d:%s', occ['file'], occ['line-beg'], occ['col-beg'])
+      echo occ
+      let msg = printf('%s:%d:%d:%s', occ['file'], occ['line-beg'], occ['col-beg'], occ['match'])
       caddex msg
     endif
   endfor
